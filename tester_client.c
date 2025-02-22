@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "passRepos.h"
 
 int main(void){
@@ -10,32 +11,37 @@ int main(void){
 	char username[50];
 	char pwd[50];
 	unsigned char pwdHash[65];
+	unsigned char fileUsername[50];
+	unsigned char filePwd[65];
+	unsigned char fileString[117];
 
 	printf("Testando\n\n");
 	printf("informe o username: ");
 	scanf("%s", username);
 	printf("informe a senha: ");
-	scanf("%s", pwd);
-
-	printf("\n%s", username);
-	printf("%s\n", pwd);
+	scanf("%s", pwd);;
 
 	toHashPassword(pwd,pwdHash);
+
+	FILE *f = fopen("tester_users.txt", "r");
 	
-	printf("%s", pwdHash);
+	int flag = 0;
+	while(fgets(fileString,sizeof(fileString),f))
+	{
 
-	FILE *f = fopen("tester_users.txt", "a");
-	if(f == NULL){
-		printf("ERRO OPENNING FILE");
-		exit(1);
-	}
-	else {
-		fprintf(f, "%s\t", username);
-		fprintf(f,"%s\n", pwdHash);
-
-		fclose(f);	
-	}
+		int ret = sscanf(fileString, "%s\t%s", fileUsername, filePwd);
 		
+		if(strcmp(fileUsername, username) == 0 && strcmp(filePwd, pwdHash) == 0)
+			flag++;	
+
+	}
+
+	if(flag == 1)
+		printf("OK\n");
+	else
+		printf("FAIL\n");	
+
+	fclose(f);
 
 	return 0;
 }
