@@ -1,0 +1,5 @@
+how to build the obj file for the implementation of the project:
+    $ gcc -c passRepos_imple.c -lssl -lcrypto
+
+how to link the files (client and implementatio) and build a executable file (client.out):
+    $ gcc passRepos_client.o passRepos_imple.o -o client.out -lssl -lcrypto
