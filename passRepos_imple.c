@@ -41,7 +41,7 @@ void regis_user(){
 		f = fopen("users.txt", "a");//aberto o arquivo novamente com "a", garantindo que as informações sejam registradas ao final do mesmo
 		if (f == NULL) {
             printf("ERROR OPENING FILE");
-            exit(1);
+            exit(0);
         }
 		fprintf(f, "%s\t", User.username);
 		
@@ -57,7 +57,7 @@ void regis_user(){
 	}
 }
 
-int usrNameValidation(char s[],FILE *f){
+int usrNameValidation(unsigned char s[],FILE *f){
 	
 	char aux[50];
 	int cont = 0;
@@ -71,7 +71,7 @@ int usrNameValidation(char s[],FILE *f){
 	return (cont > 0) ? 1 : 0;
 }
 
-void toHashPassword(const char *password, unsigned char *output_hash) {
+void toHashPassword(unsigned char *password, unsigned char *output_hash) {
 
 	unsigned char hash[SHA256_DIGEST_LENGTH];
 	
@@ -86,64 +86,62 @@ void toHashPassword(const char *password, unsigned char *output_hash) {
 }
 
 
-int loginValidation(char usrname[], unsigned char informed_hashedpsw[], FILE* f) {
-
+int loginValidation(char informed_usrname[], unsigned char informed_hashedpsw[]) {
 	int flag = 0;
-	char usrname_buffer[49];
-	char from_file_hashedpsw[SHA256_DIGEST_LENGTH];
-	
-	rewind(f);
-	
-	if(f == NULL)
-	{
+	//char file_string[116];
+	char file_username[50];
+	unsigned char file_pwd[65];
+
+	char *fs = (char*) malloc(116 * sizeof(char));
+
+	FILE *f = fopen("users.txt", "r");
+	if (f == NULL) {
 		printf("ERROR OPENING FILE");
 		exit(1);
 	}
-	
-	while(fscanf(f, "%s%s", usrname_buffer,informed_hashedpsw) == 2)
+
+	while(fgets(fs,116,f))
 	{
-		if(usrNameValidation(usrname,f) == 0){
-			fread(from_file_hashedpsw, 1, SHA256_DIGEST_LENGTH, f);
-			if(memcmp(informed_hashedpsw, from_file_hashedpsw, SHA256_DIGEST_LENGTH) == 0)
-				return 0;
-		}	
+
+		int ret = sscanf(fs, "%s\t%s", file_username, file_pwd);
+
+		if(strcmp(file_username,informed_usrname) == 0 && strcmp(file_pwd, informed_hashedpsw) == 0)
+			flag = 1;
+
 	}
 
-	fgetc(f);
+	/*printf("Read from file - Username: %s, Password: %s\n", file_username, file_pwd);
+	printf("Informed - Username: %s, Password: %s\n", informed_usrname, informed_hashedpsw);
+	sleep(20);*/
 
-	return 1;
+	fclose(f);
+	free(fs);
 
+	return flag ? 0 : 1;
 }
 
 void login(){
-	
-	char username[49];
-	unsigned char psw[49];
+
+	struct user User;
 	unsigned char hashedpsw[SHA256_DIGEST_LENGTH];
 
+	system("clear");
 
-	printf("Inform your username:\t\n");
-	scanf("%s", username);
-	printf("Inform your password:\t\n");
-	scanf("%s", psw);
+	printf("Inform your username:\t");
+	scanf("%s", User.username);
+	printf("\nInform your password:\t");
+	scanf("%s", User.login_password);
 
-	toHashPassword(psw, hashedpsw);
+	toHashPassword(User.login_password, hashedpsw);
 
-	FILE *f = fopen("users.txt", "r");//"r" garante que a leitura do arquivo comece na linha 0
-	
-	if(f == NULL)
-	{
-		printf("ERROR OPENING FILE");
-		exit(1);
-	}
+	/*printf("login informed username: %s", User.username);
+	printf("login informed password %s", hashedpsw);*/
 
-
-
-	if(loginValidation(username, hashedpsw, f) == 0)
+	if(loginValidation(User.username, hashedpsw) == 0)
 	{
 		printf("\nLogged!\n");
 		sleep(2);
-		system("clear");
+		exit(0);
 	}
 	else
 	{	printf("\nFailed!\n");
@@ -151,6 +149,4 @@ void login(){
 		system("clear");
 		login();
 	}
-	fclose(f);
-
 }
