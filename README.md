@@ -1,6 +1,8 @@
----
+PASSWORD MANAGER PROJECT
 
-I’m currently working on a password manager as a personal project. The primary goal is to learn as much as possible through the process. While the project is still a work in progress, 
+---
+Hi!
+I'm new to programmin, and I’m currently working on a password manager as a personal project (my first one). The primary goal is to learn as much as possible through the process about C, data structure and some criptography. While the project is still a work in progress, 
 I’d like to share some details on how to run (or recompile) the code for this specific project.
 
 ### Key Notes About the Project:
